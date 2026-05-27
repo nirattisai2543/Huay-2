@@ -13,6 +13,8 @@
         #page-main { display: none; text-align: center; }
         .nav-control { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px; margin-bottom: 15px; }
         .btn-action { width: 100%; padding: 12px; font-size: 16px; font-weight: bold; color: #fff; border: none; border-radius: 25px; cursor: pointer; margin-bottom: 10px; font-family: 'Charmonman'; background: #b8860b; }
+        .btn-small { padding: 8px 15px; font-size: 14px; border-radius: 15px; }
+        .row-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .btn-folder { width: 100%; padding: 15px; background: #222; border: 1px solid #b8860b; color: #ffd700; border-radius: 8px; cursor: pointer; margin-bottom: 5px; font-size: 16px; font-weight: bold; }
         .lottery-list { display: none; flex-wrap: wrap; gap: 5px; justify-content: center; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
         .lottery-list.active { display: flex; }
@@ -21,6 +23,7 @@
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; display:flex; align-items:center; justify-content:center; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.2); }
         #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: 3px solid #ffd700; display: none; }
+        #btn-top { display: none; margin-top: 15px; background: #555; }
     </style>
 </head>
 <body>
@@ -40,8 +43,11 @@
     <button class="btn-action" onclick="genNumbers()">สุ่มเลขนำโชค</button>
     <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
     <div style="margin: 5px 0; color: #ffd700;">ปรับขนาด: <input type="range" id="size-slider" min="20" max="150" value="40" oninput="resizeSelected(this.value)"></div>
-    <button class="btn-action" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูป</button>
-    <button class="btn-action" style="background:#cc0000;" onclick="resetLayout()">🔄 รีเซ็ตตำแหน่ง</button>
+    
+    <div class="row-btns">
+        <button class="btn-action btn-small" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูป</button>
+        <button class="btn-action btn-small" style="background:#cc0000;" onclick="resetLayout()">🔄 รีเซ็ตตำแหน่ง</button>
+    </div>
     
     <div class="container" id="capture">
         <div id="title" class="number-box" style="top:25%; left:25%; width:50%; font-size:30px;">หวย...</div>
@@ -57,6 +63,7 @@
         <div id="m3" class="number-box" style="top:90%; left:66%; width:25%; font-size:30px;">...</div>
     </div>
     <img id="result-img">
+    <button class="btn-action" id="btn-top" onclick="scrollToTop()">⬆ กลับขึ้นบน</button>
 </div>
 
 <script>
@@ -141,9 +148,21 @@
         saveState();
     }
 
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
     let isLocked = false, selectedBox = null;
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; }
-    function prepareImage() { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { const img = document.getElementById('result-img'); img.src = canvas.toDataURL("image/png"); img.style.display = 'block'; }); }
+    function prepareImage() { 
+        document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
+        html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { 
+            const img = document.getElementById('result-img'); 
+            img.src = canvas.toDataURL("image/png"); 
+            img.style.display = 'block'; 
+            img.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('btn-top').style.display = 'block';
+        }); 
+    }
+    
     interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveState(); } } } });
     document.querySelectorAll('.number-box').forEach(box => { box.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.number-box').forEach(b=>b.classList.remove('selected')); box.classList.add('selected'); selectedBox=box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize)||40; }; });
     document.body.addEventListener('click', () => { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); selectedBox = null; });
