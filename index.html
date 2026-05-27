@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบหวย หงส์ทองนำโชค - Full Auto Save</title>
+    <title>ระบบหวย หงส์ทองนำโชค - ฉบับสมบูรณ์</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
@@ -11,12 +11,12 @@
         body { margin: 0; padding: 20px; background-color: #0b0b0b; font-family: 'Sarabun', sans-serif; display: flex; flex-direction: column; align-items: center; color: white; min-height: 100vh; }
         #page-menu, #page-main { width: 100%; max-width: 600px; }
         #page-main { display: none; text-align: center; }
-        .search-input { width: 90%; padding: 12px; margin: 0 auto 15px; display: block; border-radius: 25px; border: 1px solid #b8860b; background: #222; color: white; text-align: center; font-size: 16px; }
-        .btn-folder { width: 100%; padding: 12px; background: #222; border: 1px solid #b8860b; color: #ffd700; border-radius: 8px; cursor: pointer; margin-bottom: 5px; font-size: 16px; font-weight: bold; }
+        .nav-control { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .btn-action { width: 100%; padding: 12px; font-size: 16px; font-weight: bold; color: #fff; border: none; border-radius: 25px; cursor: pointer; margin-bottom: 10px; font-family: 'Charmonman'; background: #b8860b; }
+        .btn-folder { width: 100%; padding: 15px; background: #222; border: 1px solid #b8860b; color: #ffd700; border-radius: 8px; cursor: pointer; margin-bottom: 5px; font-size: 16px; font-weight: bold; }
         .lottery-list { display: none; flex-wrap: wrap; gap: 5px; justify-content: center; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
         .lottery-list.active { display: flex; }
         .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 14px; }
-        .btn-action { width: 100%; padding: 12px; font-size: 18px; font-weight: bold; color: #fff; border: none; border-radius: 25px; cursor: pointer; margin-bottom: 10px; font-family: 'Charmonman'; background: #b8860b; }
         .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('11111.png'); background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; }
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; display:flex; align-items:center; justify-content:center; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.2); }
@@ -27,15 +27,19 @@
 
 <div id="page-menu">
     <h2 style="text-align:center; color:#ffd700;">เลือกหมวดหมู่หวย</h2>
-    <input type="text" class="search-input" placeholder="🔍 ค้นหาชื่อหวย..." oninput="filterLottery(this.value)">
     <div id="menu"></div>
 </div>
 
 <div id="page-main">
-    <button class="btn-action" style="background:#555;" onclick="showPage('page-menu')">← กลับไปเลือกหวย</button>
+    <div class="nav-control">
+        <button class="btn-action" style="background:#555;" onclick="changeLotto(-1)">◀ ก่อนหน้า</button>
+        <button class="btn-action" style="background:#444;" onclick="showPage('page-menu')">กลับหน้าหลัก</button>
+        <button class="btn-action" style="background:#555;" onclick="changeLotto(1)">ถัดไป ▶</button>
+    </div>
+    
     <button class="btn-action" onclick="genNumbers()">สุ่มเลขนำโชค</button>
     <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
-    <div style="margin: 10px 0; color: #ffd700;">ปรับขนาด: <input type="range" id="size-slider" min="20" max="150" value="40" oninput="resizeSelected(this.value)"></div>
+    <div style="margin: 5px 0; color: #ffd700;">ปรับขนาด: <input type="range" id="size-slider" min="20" max="150" value="40" oninput="resizeSelected(this.value)"></div>
     <button class="btn-action" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูป</button>
     <button class="btn-action" style="background:#cc0000;" onclick="resetLayout()">🔄 รีเซ็ตตำแหน่ง</button>
     
@@ -56,67 +60,82 @@
 </div>
 
 <script>
-    const db = { "รายวัน": ["ประชาชนลาว", "ลาว Extra", "ฮานอยอาเซียน", "ลาว TV", "ฮานอย HD", "ฮานอย สตาร์", "ลาว HD", "ฮานอย TV", "ลาวสตาร์", "ฮานอย กาชาด", "ฮานอยสามัคคี", "ฮานอยพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาวสามัคคี VIP", "อังกฤษVIP", "ลาวSTAR VIP", "มาเลเซีย", "เยอรมัน VIP", "ลาว กาชาด", "รัสเซียVIP", "ดาวโจนส์ STAR", "ลาวสันติภาพ", "ลาวประตูชัย"], "รัฐบาลไทย": ["รัฐบาลไทย", "ออมสิน", "ธ.ก.ส"], "ฮานอย": ["ฮานอยพิเศษ", "ฮานอยปกติ", "ฮานอย VIP"], "หุ้น": ["หุ้นนิเคอิเช้า", "หุ้นจีนเช้า", "หุ้นฮั่งเส็งเช้า", "หุ้นไต้หวัน", "หุ้นเกาหลี", "หุ้นนิเคอิบ่าย", "หุ้นจีนบ่าย", "หุ้นฮั่งเส็งบ่าย", "หุ้นสิงคโปร์", "หุ้นอียิปต์", "หุ้นไทยเย็น", "หุ้นอินเดีย", "หุ้นเยอรมัน", "หุ้นรัสเซีย", "หุ้นอังกฤษ", "หุ้นดาวโจนส์"], "หุ้น VIP": ["หุ้นนิเคอิเช้า VIP", "หุ้นจีนเช้า VIP", "หุ้นฮั่งเส็งเช้า VIP", "หุ้นไต้หวัน VIP", "หุ้นเกาหลี VIP", "หุ้นนิเคอิบ่าย VIP", "หุ้นจีนบ่าย VIP", "หุ้นฮั่งเส็งบ่าย VIP", "หุ้นสิงคโปร์ VIP", "หุ้นอินเดีย VIP", "หุ้นเยอรมัน VIP", "หุ้นรัสเซีย VIP", "หุ้นอังกฤษ VIP", "หุ้นดาวโจนส์ VIP"], "พิเศษ": ["ฮานอยเที่ยง", "ลาวพิเศษ", "ลาวVIP", "ลาวเวียงจันทน์"], "อื่นๆ": ["ฮานอย EXTRA", "ฮานอยตรุษจีน"] };
+    const db = { 
+        "หวย จันทร์-ศุกร์": ["ลาว Extra", "นิเคอิเช้า VIP", "นอยอาเซียน", "นิเคอิเช้า", "จีนเช้า VIP", "จีนเช้า", "ลาว TV", "ฮั่งเส็งเช้า VIP", "ฮั่งเส็งเช้า", "ฮานอย HD", "ไต้หวัน VIP", "ฮานอยสตาร์", "เกาหลี", "เกาหลี VIP", "นิเคอิบ่าย", "นิเคอิบ่าย VIP", "ลาว HD", "จีนบ่าย", "ฮานอย TV", "จีนบ่าย VIP", "ฮั่งเส็งบ่าย", "ฮั่งเส็งบ่าย VIP", "ลาวสตาร์", "สิงค์โปร", "ไทยเย็น", "ฮานอยกาชาด", "อินเดีย", "สิงค์โปร์ VIP", "อียิปต์", "ฮานอยสามัคคี", "ฮานอยพิเศษ", "ฮานอยปกติ", "ฮานอย VIP", "ฮานอยพัฒนา", "ลาวพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาว VIP", "ลาวสามัคคี VIP", "อังกฤษ VIP", "ลาวสตาร์ VIP", "ฮานอย Extra", "อังกฤษ", "เยอรมัน", "รัสเซีย", "เยอรมัน VIP", "ลาวกาชาด", "รัสเซีย VIP", "ดาวโจนส์ VIP", "ดาวโจนส์ STAR", "ดาวโจนส์"], 
+        "หวย เสาร์-อาทิตย์": ["ลาว Extra", "นิเคอิเช้า VIP", "นอยอาเซียน", "จีนเช้า VIP", "ลาว TV", "ฮั่งเส็งเช้า VIP", "ฮานอย HD", "ไต้หวัน VIP", "ฮานอยสตาร์", "เกาหลี VIP", "นิเคอิบ่าย VIP", "ลาว HD", "ฮานอย TV", "จีนบ่าย VIP", "ฮั่งเส็งบ่าย VIP", "ลาวสตาร์", "ฮานอยกาชาด", "สิงค์โปร์ VIP", "ฮานอยพิเศษ", "ฮานอยสามัคคี", "ฮานอยปกติ", "ฮานอย VIP", "ฮานอยพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาว VIP", "ลาวสามัคคี VIP", "อังกฤษ VIP", "ลาวสตาร์ VIP", "ฮานอย Extra", "เยอรมัน VIP", "ลาวกาชาด", "รัสเซีย VIP", "ดาวโจนส์ VIP", "ดาวโจนส์ STAR"] 
+    };
+
+    let currentFolder = "", currentIndex = 0;
+
+    function loadLotto(folder, index) {
+        currentFolder = folder; currentIndex = index;
+        document.getElementById('title').textContent = db[folder][index];
+        showPage('page-main');
+        genNumbers();
+    }
+
+    function changeLotto(step) {
+        let list = db[currentFolder];
+        let nextIndex = currentIndex + step;
+        if(nextIndex >= 0 && nextIndex < list.length) loadLotto(currentFolder, nextIndex);
+    }
+
+    function showPage(p) { 
+        document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; 
+        document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; 
+    }
 
     function saveState() {
-        const data = {};
+        const data = { folder: currentFolder, index: currentIndex, boxes: {} };
         document.querySelectorAll('.number-box').forEach(b => {
-            data[b.id] = { x: b.getAttribute('data-x') || 0, y: b.getAttribute('data-y') || 0, fontSize: b.style.fontSize, text: b.textContent };
+            data.boxes[b.id] = { x: b.getAttribute('data-x') || 0, y: b.getAttribute('data-y') || 0, fontSize: b.style.fontSize, text: b.textContent };
         });
-        localStorage.setItem('lotto_data', JSON.stringify(data));
+        localStorage.setItem('lotto_data_final', JSON.stringify(data));
     }
 
     function loadState() {
-        const d = JSON.parse(localStorage.getItem('lotto_data'));
+        const d = JSON.parse(localStorage.getItem('lotto_data_final'));
         if (!d) return;
-        Object.keys(d).forEach(id => {
+        currentFolder = d.folder; currentIndex = d.index;
+        Object.keys(d.boxes).forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.style.transform = `translate(${d[id].x}px, ${d[id].y}px)`;
-                el.setAttribute('data-x', d[id].x); el.setAttribute('data-y', d[id].y);
-                el.style.fontSize = d[id].fontSize; el.textContent = d[id].text;
+                el.style.transform = `translate(${d.boxes[id].x}px, ${d.boxes[id].y}px)`;
+                el.setAttribute('data-x', d.boxes[id].x); el.setAttribute('data-y', d.boxes[id].y);
+                el.style.fontSize = d.boxes[id].fontSize; el.textContent = d.boxes[id].text;
             }
         });
     }
 
-    function resetLayout() { localStorage.removeItem('lotto_data'); location.reload(); }
+    function resetLayout() { localStorage.removeItem('lotto_data_final'); location.reload(); }
 
     const menu = document.getElementById('menu');
     Object.keys(db).forEach(f => {
         let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f;
         let l = document.createElement('div'); l.className='lottery-list';
         b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); };
-        db[f].forEach(n => {
+        db[f].forEach((n, i) => {
             let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n;
-            s.onclick = () => { 
-                document.getElementById('title').textContent=n; 
-                showPage('page-main'); 
-                genNumbers(); 
-                saveState(); 
-            };
+            s.onclick = () => loadLotto(f, i);
             l.appendChild(s);
         });
         menu.appendChild(b); menu.appendChild(l);
     });
 
-    function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); }
-    function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
-    
     function genNumbers() {
         const main = Math.floor(Math.random() * 10);
         document.getElementById('main-num').textContent = main;
-        const w1 = Math.floor(Math.random() * 10);
-        const w2 = Math.floor(Math.random() * 10);
+        let w1, w2;
+        do { w1 = Math.floor(Math.random() * 10); } while (w1 === main);
+        do { w2 = Math.floor(Math.random() * 10); } while (w2 === main || w2 === w1);
         document.getElementById('wing').textContent = w1 + " - " + w2;
+        
         const sources = [main, w1, w2];
         document.querySelectorAll('.number-box').forEach(b => { 
             if(b.id !== 'title' && b.id !== 'line-text' && b.id !== 'main-num' && b.id !== 'wing') { 
                 const s = sources[Math.floor(Math.random() * sources.length)];
-                if (b.id.startsWith('m')) {
-                    b.textContent = Math.floor(Math.random()*90 + 10) + "" + s;
-                } else if (b.id.startsWith('t')) {
-                    b.textContent = Math.random() > 0.5 ? (s.toString() + Math.floor(Math.random()*10)) : (Math.floor(Math.random()*10).toString() + s);
-                }
+                if (b.id.startsWith('m')) b.textContent = Math.floor(Math.random()*90 + 10) + "" + s;
+                else if (b.id.startsWith('t')) b.textContent = Math.random() > 0.5 ? (s.toString() + Math.floor(Math.random()*10)) : (Math.floor(Math.random()*10).toString() + s);
             } 
         });
         saveState();
@@ -129,7 +148,6 @@
     document.querySelectorAll('.number-box').forEach(box => { box.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.number-box').forEach(b=>b.classList.remove('selected')); box.classList.add('selected'); selectedBox=box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize)||40; }; });
     document.body.addEventListener('click', () => { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); selectedBox = null; });
     function resizeSelected(v) { if(selectedBox) { selectedBox.style.fontSize = v + 'px'; saveState(); } }
-    
     window.onload = loadState;
 </script>
 </body>
