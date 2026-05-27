@@ -157,10 +157,13 @@
             const img = document.getElementById('result-img'); 
             img.src = canvas.toDataURL("image/png"); 
             img.style.display = 'block'; 
+            document.getElementById('btn-top').style.display = 'block';
             
             setTimeout(() => {
-                img.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                document.getElementById('btn-top').style.display = 'block';
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
             }, 100);
         }); 
     }
