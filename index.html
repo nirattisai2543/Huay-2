@@ -58,7 +58,6 @@
 <script>
     const db = { "รายวัน": ["ประชาชนลาว", "ลาว Extra", "ฮานอยอาเซียน", "ลาว TV", "ฮานอย HD", "ฮานอย สตาร์", "ลาว HD", "ฮานอย TV", "ลาวสตาร์", "ฮานอย กาชาด", "ฮานอยสามัคคี", "ฮานอยพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาวสามัคคี VIP", "อังกฤษVIP", "ลาวSTAR VIP", "มาเลเซีย", "เยอรมัน VIP", "ลาว กาชาด", "รัสเซียVIP", "ดาวโจนส์ STAR", "ลาวสันติภาพ", "ลาวประตูชัย"], "รัฐบาลไทย": ["รัฐบาลไทย", "ออมสิน", "ธ.ก.ส"], "ฮานอย": ["ฮานอยพิเศษ", "ฮานอยปกติ", "ฮานอย VIP"], "หุ้น": ["หุ้นนิเคอิเช้า", "หุ้นจีนเช้า", "หุ้นฮั่งเส็งเช้า", "หุ้นไต้หวัน", "หุ้นเกาหลี", "หุ้นนิเคอิบ่าย", "หุ้นจีนบ่าย", "หุ้นฮั่งเส็งบ่าย", "หุ้นสิงคโปร์", "หุ้นอียิปต์", "หุ้นไทยเย็น", "หุ้นอินเดีย", "หุ้นเยอรมัน", "หุ้นรัสเซีย", "หุ้นอังกฤษ", "หุ้นดาวโจนส์"], "หุ้น VIP": ["หุ้นนิเคอิเช้า VIP", "หุ้นจีนเช้า VIP", "หุ้นฮั่งเส็งเช้า VIP", "หุ้นไต้หวัน VIP", "หุ้นเกาหลี VIP", "หุ้นนิเคอิบ่าย VIP", "หุ้นจีนบ่าย VIP", "หุ้นฮั่งเส็งบ่าย VIP", "หุ้นสิงคโปร์ VIP", "หุ้นอินเดีย VIP", "หุ้นเยอรมัน VIP", "หุ้นรัสเซีย VIP", "หุ้นอังกฤษ VIP", "หุ้นดาวโจนส์ VIP"], "พิเศษ": ["ฮานอยเที่ยง", "ลาวพิเศษ", "ลาวVIP", "ลาวเวียงจันทน์"], "อื่นๆ": ["ฮานอย EXTRA", "ฮานอยตรุษจีน"] };
 
-    // --- ระบบ Auto Save ---
     function saveState() {
         const data = {};
         document.querySelectorAll('.number-box').forEach(b => {
@@ -81,7 +80,6 @@
     }
 
     function resetLayout() { localStorage.removeItem('lotto_data'); location.reload(); }
-    // -----------------------
 
     const menu = document.getElementById('menu');
     Object.keys(db).forEach(f => {
@@ -100,16 +98,30 @@
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     
     function genNumbers() {
-        // แก้ไขให้ main-num เป็นเลข 2 หลัก
-        document.getElementById('main-num').textContent = Math.floor(Math.random()*90+10);
+        // 1. เลขตรงกลาง
+        const main = Math.floor(Math.random() * 10);
+        document.getElementById('main-num').textContent = main;
+        
+        // 2. เลขวิ่ง/รูด
+        const w1 = Math.floor(Math.random() * 10);
+        const w2 = Math.floor(Math.random() * 10);
+        document.getElementById('wing').textContent = w1 + " - " + w2;
+        
+        const sources = [main, w1, w2];
         
         document.querySelectorAll('.number-box').forEach(b => { 
-            if(b.id !== 'title' && b.id !== 'line-text' && b.id !== 'main-num') { 
-                b.textContent = b.id.includes('m') ? Math.floor(Math.random()*900+100) : (b.id=='wing' ? Math.floor(Math.random()*10)+" - "+Math.floor(Math.random()*10) : Math.floor(Math.random()*9+1)); 
+            if(b.id !== 'title' && b.id !== 'line-text' && b.id !== 'main-num' && b.id !== 'wing') { 
+                const s = sources[Math.floor(Math.random() * sources.length)];
+                if (b.id.startsWith('m')) {
+                    b.textContent = Math.floor(Math.random()*90 + 10) + "" + s;
+                } else if (b.id.startsWith('t')) {
+                    b.textContent = Math.random() > 0.5 ? (s.toString() + Math.floor(Math.random()*10)) : (Math.floor(Math.random()*10).toString() + s);
+                }
             } 
         });
         saveState();
     }
+
     let isLocked = false, selectedBox = null;
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; }
     function prepareImage() { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { const img = document.getElementById('result-img'); img.src = canvas.toDataURL("image/png"); img.style.display = 'block'; }); }
@@ -119,10 +131,6 @@
     function resizeSelected(v) { if(selectedBox) { selectedBox.style.fontSize = v + 'px'; saveState(); } }
     
     window.onload = loadState;
-</script>
-</body>
-</html>
-dow.onload = loadState;
 </script>
 </body>
 </html>
