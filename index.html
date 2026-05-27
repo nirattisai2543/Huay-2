@@ -23,7 +23,7 @@
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; display:flex; align-items:center; justify-content:center; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.2); }
         #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: 3px solid #ffd700; display: none; }
-        #btn-top { display: none; margin-top: 15px; background: #555; }
+        #btn-top { display: none; width: 100%; padding: 12px; margin-top: 15px; background: #555; color: #fff; border: none; border-radius: 25px; cursor: pointer; font-family: 'Charmonman'; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -63,7 +63,7 @@
         <div id="m3" class="number-box" style="top:90%; left:66%; width:25%; font-size:30px;">...</div>
     </div>
     <img id="result-img">
-    <button class="btn-action" id="btn-top" onclick="scrollToTop()">⬆ กลับขึ้นบน</button>
+    <button id="btn-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">⬆ กลับขึ้นบน</button>
 </div>
 
 <script>
@@ -148,18 +148,20 @@
         saveState();
     }
 
-    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
     let isLocked = false, selectedBox = null;
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; }
+    
     function prepareImage() { 
         document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
         html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { 
             const img = document.getElementById('result-img'); 
             img.src = canvas.toDataURL("image/png"); 
             img.style.display = 'block'; 
-            img.scrollIntoView({ behavior: 'smooth' });
-            document.getElementById('btn-top').style.display = 'block';
+            
+            setTimeout(() => {
+                img.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                document.getElementById('btn-top').style.display = 'block';
+            }, 100);
         }); 
     }
     
