@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบหวย หงส์ทองนำโชค - Auto Save</title>
+    <title>ระบบหวย หงส์ทองนำโชค - Full Auto Save</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
@@ -98,8 +98,16 @@
 
     function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); }
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
+    
     function genNumbers() {
-        document.querySelectorAll('.number-box').forEach(b => { if(b.id !== 'title' && b.id !== 'line-text') b.textContent = b.id.includes('m') ? Math.floor(Math.random()*900+100) : (b.id=='main-num' ? Math.floor(Math.random()*90+10) : (b.id=='wing' ? Math.floor(Math.random()*10)+" - "+Math.floor(Math.random()*10) : Math.floor(Math.random()*9+1))); });
+        // แก้ไขให้ main-num เป็นเลข 2 หลัก
+        document.getElementById('main-num').textContent = Math.floor(Math.random()*90+10);
+        
+        document.querySelectorAll('.number-box').forEach(b => { 
+            if(b.id !== 'title' && b.id !== 'line-text' && b.id !== 'main-num') { 
+                b.textContent = b.id.includes('m') ? Math.floor(Math.random()*900+100) : (b.id=='wing' ? Math.floor(Math.random()*10)+" - "+Math.floor(Math.random()*10) : Math.floor(Math.random()*9+1)); 
+            } 
+        });
         saveState();
     }
     let isLocked = false, selectedBox = null;
@@ -111,6 +119,10 @@
     function resizeSelected(v) { if(selectedBox) { selectedBox.style.fontSize = v + 'px'; saveState(); } }
     
     window.onload = loadState;
+</script>
+</body>
+</html>
+dow.onload = loadState;
 </script>
 </body>
 </html>
