@@ -17,7 +17,7 @@
         .lottery-list { display: none; flex-wrap: wrap; gap: 5px; justify-content: center; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
         .lottery-list.active { display: flex; }
         .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 14px; }
-        .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('11111.png'); background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; }
+        .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('11111.png'); background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; box-sizing: border-box; }
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; display:flex; align-items:center; justify-content:center; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.2); }
         #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: 3px solid #ffd700; display: none; }
@@ -143,7 +143,22 @@
 
     let isLocked = false, selectedBox = null;
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; }
-    function prepareImage() { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { const img = document.getElementById('result-img'); img.src = canvas.toDataURL("image/png"); img.style.display = 'block'; }); }
+    
+    // ฟังก์ชันปรับปรุงการสร้างรูปภาพให้ชัดและไม่มีขอบขาว
+    function prepareImage() { 
+        document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
+        html2canvas(document.getElementById('capture'), { 
+            scale: 3, 
+            backgroundColor: null,
+            windowWidth: document.getElementById('capture').scrollWidth
+        }).then(canvas => { 
+            const img = document.getElementById('result-img'); 
+            img.src = canvas.toDataURL("image/png"); 
+            img.style.display = 'block'; 
+            img.scrollIntoView({ behavior: 'smooth' }); 
+        }); 
+    }
+
     interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveState(); } } } });
     document.querySelectorAll('.number-box').forEach(box => { box.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.number-box').forEach(b=>b.classList.remove('selected')); box.classList.add('selected'); selectedBox=box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize)||40; }; });
     document.body.addEventListener('click', () => { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); selectedBox = null; });
