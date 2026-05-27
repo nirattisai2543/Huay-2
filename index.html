@@ -88,7 +88,12 @@
         b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); };
         db[f].forEach(n => {
             let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n;
-            s.onclick = () => { document.getElementById('title').textContent=n; showPage('page-main'); saveState(); };
+            s.onclick = () => { 
+                document.getElementById('title').textContent=n; 
+                showPage('page-main'); 
+                genNumbers(); 
+                saveState(); 
+            };
             l.appendChild(s);
         });
         menu.appendChild(b); menu.appendChild(l);
@@ -98,17 +103,12 @@
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     
     function genNumbers() {
-        // 1. เลขตรงกลาง
         const main = Math.floor(Math.random() * 10);
         document.getElementById('main-num').textContent = main;
-        
-        // 2. เลขวิ่ง/รูด
         const w1 = Math.floor(Math.random() * 10);
         const w2 = Math.floor(Math.random() * 10);
         document.getElementById('wing').textContent = w1 + " - " + w2;
-        
         const sources = [main, w1, w2];
-        
         document.querySelectorAll('.number-box').forEach(b => { 
             if(b.id !== 'title' && b.id !== 'line-text' && b.id !== 'main-num' && b.id !== 'wing') { 
                 const s = sources[Math.floor(Math.random() * sources.length)];
