@@ -41,13 +41,14 @@
     </div>
     
     <button class="btn-action" onclick="genNumbers()">สุ่มเลขนำโชค</button>
-    <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
-    <div style="margin: 5px 0; color: #ffd700;">ปรับขนาด: <input type="range" id="size-slider" min="20" max="150" value="40" oninput="resizeSelected(this.value)"></div>
     
     <div class="row-btns">
-        <button class="btn-action btn-small" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูป</button>
+        <button class="btn-action btn-small" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
         <button class="btn-action btn-small" style="background:#cc0000;" onclick="resetLayout()">🔄 รีเซ็ตตำแหน่ง</button>
+        <button class="btn-action btn-small" style="background:#007bff; grid-column: span 2;" onclick="prepareImage()">🖼️ สร้างรูป</button>
     </div>
+
+    <div style="margin: 5px 0; color: #ffd700;">ปรับขนาด: <input type="range" id="size-slider" min="20" max="150" value="40" oninput="resizeSelected(this.value)"></div>
     
     <div class="container" id="capture">
         <div id="title" class="number-box" style="top:25%; left:25%; width:50%; font-size:30px;">หวย...</div>
